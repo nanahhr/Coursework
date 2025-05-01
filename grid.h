@@ -19,7 +19,7 @@ struct Hint {
 enum class CellState{EMPTY, FILLED, HINT};
 
 class Grid{
-	vector<vector<CellState>>;
+	vector<vector<CellState>> cells;
 	vector<Hint> hints;
 	int rows, cols;
 	bool is_solved;
