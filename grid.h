@@ -11,9 +11,9 @@ using namespace std;
 
 struct Hint {
     int row, col;
-    int count;
+    int num;
     char direction;
-	Hint(int r, int c, int cn, char dir);
+	Hint(int r, int c, int n, char dir);
 };
 
 enum class CellState{EMPTY, FILLED, HINT};
@@ -42,5 +42,6 @@ public:
 	void is_valid(int row, int col);
 	void load_from_file(string& file_name);
 	void input_from_console();
+	void print_grid();
 };	
 #endif
