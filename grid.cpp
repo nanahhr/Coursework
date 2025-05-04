@@ -25,7 +25,19 @@ CellState Grid::get_cell(int row, int col){return cells[row][col]}
 	
 //Повертає вектор з підказками.
 vector<Hint>& Grid::get_hints(){return hints;}
-	
+
+//Якщо є, знаходить підказку за координатами.
+Hint* get_hint_at(int row, int col){
+	if(cells[row][col] == CellState::HINT){
+		for(auto& h : hints){
+			if(h.row == row && h.col == col){
+				return &h;
+			}
+		}
+	}
+	return nullptr;
+}
+
 //Повертає стан вирішення сітки.
 bool Grid::get_is_solved(){return is_solved;}
 	
@@ -41,7 +53,7 @@ void Grid::add_hint(Hint& hint){
 void Grid::set_is_solved(bool solved){is_solved = solved;}
 	
 //Перевіряє, чи координати клітинки є в межах сітки.
-void Grid::is_cell_valid(int row, int col){
+void Grid::is_valid(int row, int col){
 	return row >= 0 && row < rows && col >= 0 && col < cols;
 }
 	
