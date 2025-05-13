@@ -21,13 +21,13 @@ int Grid::get_rows(){return rows;}
 int Grid::get_cols(){return cols;}
 	
 //Повертає клітинки.
-CellState Grid::get_cell(int row, int col){return cells[row][col]}
+CellState Grid::get_cell(int row, int col){return cells[row][col];}
 	
 //Повертає вектор з підказками.
 vector<Hint>& Grid::get_hints(){return hints;}
 
 //Якщо є, знаходить підказку за координатами.
-Hint* get_hint_at(int row, int col){
+Hint* Grid::get_hint_at(int row, int col){
 	if(cells[row][col] == CellState::HINT){
 		for(auto& h : hints){
 			if(h.row == row && h.col == col){
@@ -53,7 +53,7 @@ void Grid::add_hint(Hint& hint){
 void Grid::set_is_solved(bool solved){is_solved = solved;}
 	
 //Перевіряє, чи координати клітинки є в межах сітки.
-void Grid::is_valid(int row, int col){
+bool Grid::is_valid(int row, int col){
 	return row >= 0 && row < rows && col >= 0 && col < cols;
 }
 	
@@ -63,7 +63,7 @@ void Grid::load_from_file(string& file_name){
 		
 	if(!file){
 		cerr << "Cannot open file.\n";
-		return 1;
+		return;
 	}
 	file >> rows >> cols;
 	cells.resize(rows, vector<CellState>(cols, CellState::EMPTY));
@@ -119,10 +119,10 @@ void Grid::input_from_console() {
             cin.clear();
             cin.ignore(1000, '\n');
         }
-        hint.direction = direction;
+        h.direction = direction;
 
-        hints.push_back(hint);
-        cells[hint.row][hint.col] = CellState::HINT;
+        hints.push_back(h);
+        cells[h.row][h.col] = CellState::HINT;
     }
 }
 
@@ -134,15 +134,15 @@ void Grid::print_grid() {
 	for (int i = 0; i < col; ++i) cout << "----";
 	cout << endl;
 
-	for (int i = 0; i < row; i++) {
+	for (int i = 0; i < rows; i++) {
 		cout << setw(3) <<  i << " " << "| ";
-		for (int j = 0; j < col; j++) {
+		for (int j = 0; j < cols; j++) {
 			switch (cells[i][j]) {
 				case EMPTY: cout << " · "; break;
 				case FILLED: cout << " # "; break;
 				case HINT: {
 					for (const Hint& h : hints) {
-						if (h.r == i && h.c == j) {
+						if (h.row == i && h.col == j) {
 							cout << setw(2) << h.num;
 							switch (h.dir) {
 								case 'r': cout << "→"; break;
