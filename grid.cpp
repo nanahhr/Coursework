@@ -43,9 +43,28 @@ bool Grid::get_is_solved(){return is_solved;}
 	
 //Встановлює значення клітинки сітки.	
 void Grid::set_cell(int row, int col, CellState state){cells[row][col] = state;}
+
+//Змінює розміри сітки та очищує її вміст.
+void Grid::resize_grid(int nr, int nc){
+	if(nr <= 0 || nc <= 0){
+		cerr << "Invalid input. Rows and columns must be positive. ";
+		cerr << "Grid not resized." << endl;
+		return;
+	}
+	this->rows = nr;
+	this->cols = nc;
+	this->hints.clear();
 	
+	this->cells.assign(this->rows, vector<CellState>(this->cols, CellState::EMPTY));
+	
+	
+	this->is_solved = false;
+	
+	cout << "Grid resized to (" << this->rows << "," << this->cols << ")." << endl; 
+}	
+
 //Додає підказку для сітки.
-void Grid::add_hint(Hint& hint){
+void Grid::add_hint(const Hint& hint){
 	hints.push_back(hint);
 	cells[hint.row][hint.col] = CellState::HINT;
 }
@@ -58,111 +77,69 @@ bool Grid::is_valid(int row, int col){
 }
 	
 //Функція для отримання данних з файлу.
-void Grid::load_from_file(string& file_name){
+bool Grid::load_from_file(const string& filename){
 	ifstream file(file_name);
 		
 	if(!file){
-		cerr << "Cannot open file.\n";
-		return;
+		cerr << "Cannot open file <" << filename << ">." << endl;
+		return false;
 	}
-	file >> rows >> cols;
-	cells.resize(rows, vector<CellState>(cols, CellState::EMPTY));
-			
-	int hints_count;
-	file >> hints_count;
-			
-	for (int i = 0; i < hints_count; ++i) {
-		Hint hint;
-		char dir;
-		file >> hint.row >> hint.col >> hint.num >> dir;
-
-		if (hint.row < 0 || hint.row >= rows || 
-			hint.col < 0 || hint.col >= cols) {
-			cerr << "Hint is out of range.";
-		}
-
-		hint.direction = toupper(dir);
-		hints.push_back(hint);
-		cells[hint.row][hint.col] = CellState::HINT;
-	}
-}
-
-//Функція для отримання данних з консолі.
-void Grid::input_from_console() {
-		
-    cout << "Enter grid size (rows columns): ";
-    while (!(cin >> rows >> cols) || rows < 1 || cols < 1) {
-        cerr << "Enter two positive numbers.\n";
-        cin.clear();
-        cin.ignore(1000, '\n');
-    }
-    cells.assign(rows, vector<CellState>(cols, CellState::EMPTY));
+	int file_nr, file_nc;
 	
-    cout << "Number of hints: ";
-    int n;
-    while (!(cin >> n) || n < 0) {
-        cerr << "Invalid number of hints. Enter a number >= 0\n";
-        cin.clear();
-        cin.ignore(1000, '\n');
-    }
-
-    for (int i = 0; i < n; ++i) {
-        Hint h;
-        char dir;
-        
-        cout << "Hint №" << i+1 << " (row column number direction): ";
-        while (!(cin >> h.row >> h.col >> h.num >> dir) || 
-               h.row < 0 || h.row >= rows || 
-               h.col < 0 || h.col >= cols ||
-               (dir = tolower(dir), !strchr("udlr", dir))) {
-            cerr << "Input error. Try again.\n";
-            cin.clear();
-            cin.ignore(1000, '\n');
-        }
-        h.direction = direction;
-
-        hints.push_back(h);
-        cells[h.row][h.col] = CellState::HINT;
-    }
-}
-
-//Функція для виведення сітки.
-void Grid::print_grid() {
-	cout << "      ";
-	for (int i = 0; i < col; ++i) cout << setw(2) <<  i << "  ";
-	cout << "\n     ";
-	for (int i = 0; i < col; ++i) cout << "----";
-	cout << endl;
-
-	for (int i = 0; i < rows; i++) {
-		cout << setw(3) <<  i << " " << "| ";
-		for (int j = 0; j < cols; j++) {
-			switch (cells[i][j]) {
-				case EMPTY: cout << " · "; break;
-				case FILLED: cout << " # "; break;
-				case HINT: {
-					for (const Hint& h : hints) {
-						if (h.row == i && h.col == j) {
-							cout << setw(2) << h.num;
-							switch (h.dir) {
-								case 'r': cout << "→"; break;
-								case 'l': cout << "←"; break;
-								case 'u': cout << "↑"; break;
-								case 'd': cout << "↓"; break;
-								default: cout << "?"; break;
-							}
-							break;
-						}
-					}
-					break;
-				}
-				case LINE: cout << " + "; break;
-			}
-			cout << " ";
-		}
-		cout << "|" << endl;
+	if(!(file >> file_nr >> file_nc) || file_rows <= 0 || file_cols <= 0){
+		cerr << "Failed to read grid size from <" << file_name << ">." << endl;
+		file.close();
+		return false;
 	}
-	cout << "     ";
-	for (int i = 0; i < col; i++) cout << "----";
-	cout << endl;
+	
+	this->resize_grid(file_nr, file_nc);
+	
+	int file_hint_count;
+	
+	if(!(file >> file_hint_count) || file_hint_count < 0){
+		cerr << "Failed to read number of hints from <" << file_name << ">." << end;
+		file.close();
+		return false;
+	}
+	
+	for(int i = 0; i < file_hint_count; i++){
+		int r_hint, c_hint, hint_num;
+		char dir_char_input;
+		
+		if(!(file >> r_hint >> c_hint >> hint_num >> dir_char_input)){
+			cerr << "Failed to read data for hint №" << (i+1) << ".' << endl;
+			file.close();
+			return false;
+		}
+		
+		if(r_hint < 0 || r_hint >= this->rows ||c_hint < 0 || c_hint >= this-> cols){
+			cerr << "Hint №" << (i+1) << " coordinates (" << r_hint << "," << c_hint 
+				<< ") are out of grid range in file <" << file_name << ">." << endl;
+		    file.close();
+			return false;
+		}
+		
+		if(hint_num < 0){
+			cerr << "Hint №" << (i+1) << " has negative value in file <" << file_name << ">." << endl;
+			file.close();
+			return false;
+		}
+		
+		char dir_final = toupper(static_cast<unsigned char>(dir_char_input));
+		if(dir_final != 'U' && dir_final != 'D' && dir_final != 'L' && dir_final != 'R'){
+			cerr << "Hint №" << (i+1) << " has invalid direction(not U/D/L/R) in file <" << file_name << ">." << endl;
+			file.close();
+			return false;
+		}
+		
+		if(this->cells[r_hint][c_hint] == CellState::HINT){
+			cerr << "Hint №" << (i+1) << " is a dublicate. Skipping this hint from file <" << file_name << ">." << endl;
+			continue;
+		}
+		
+		add_hint(Hint(r_hint, c_hint, hint_num, dir_final));
+	}
+	
+	file.close();
+	return true;
 }
