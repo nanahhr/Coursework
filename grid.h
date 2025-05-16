@@ -36,12 +36,11 @@ public:
 	bool get_is_solved();	
 	
 	void set_cell(int row, int col, CellState state);
-	void add_hint(Hint& hint);
+	void resize_grid(int nr, int nc);
+	void add_hint(const Hint& hint);
 	void set_is_solved(bool solved);
 
 	void is_valid(int row, int col);
-	void load_from_file(string& file_name);
-	void input_from_console();
-	void print_grid();
+	bool load_from_file(string& file_name);
 };	
 #endif
