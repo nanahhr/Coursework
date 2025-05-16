@@ -1,6 +1,68 @@
 #include "ui.h"
 
-UI::UI(){}
+UI::UI(){grid_loaded = false;}
+
+void UI::run_program(){
+	grid_loaded = false;
+	while(true){
+		if(!grid_loaded){
+			if(!) break;
+			else(!) grid_loaded = false;
+		}
+	}
+	cout << "End." << endl;
+}
+bool UI::main_menu(){
+	display_main_menu();
+	int choice = get_menu_choice(1,3);
+	switch(choice){
+		case 1:
+		case 2:
+		case 3:
+	}
+	return true;
+}
+
+void UI::input_source_menu(){
+	display_input_source_menu();
+	int choice = get_menu_choice(1,3);
+	switch(choice){
+		case 1:
+		case 2:
+		case 3:
+	}
+}
+
+bool UI::action_menu(){
+	display_action_menu();
+	int choice = get_menu_choice(1,4);
+	switch(choice){
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+	}
+	return true;
+}
+
+void UI::test_grid_menu(){
+	display_test_grid_menu();
+	int choice = get_menu_choice(1, 4);
+	bool grid_chosen = false;
+	
+	switch(choice){
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+	}
+	if (grid_chosen) {
+        grid_loaded = true;
+        cout << "Тестову головоломку успішно завантажено." << endl;
+        display_grid(grid);
+    }
+}
+
 
 void UI::display_main_menu(){
 	cout << "\n_Menu_" << endl;
@@ -18,15 +80,97 @@ void UI::display_input_source_menu(){
 
 void UI::display_action_menu(){
 	cout << "\n_Choose an action_" << endl;
-	cout << "1. Solve the puzzle yourself." << endl;
-	cout << "2. Solve the puzzle programmically" << endl;
+	cout << "1. Solve the grid yourself." << endl;
+	cout << "2. Solve the grid programmically" << endl;
 	cout << "3. Show the current state." << endl;
-	cout << "Return to the main menu." << endl;
+	cout << "4.Return to the main menu." << endl;
 }
-
+void UI::display_test_grid_menu(){
+	cout << "\n_Choose test grid" << endl;
+	cout << "1. grid 10x10." << endl;
+	cout << "2. grid 12x8." << endl;
+	cout << "3. grid 16x11." << endl;
+	cout << "4. Return" << endl;
+}
 void UI::clear_input_buffer(){
 	cin.clear();
 	cin.ignore(numeric_limits<streamsize>::max, '\n');
+}
+
+void UI::load_test_grid_1(){
+	grid.resize_grid(10, 10); 
+
+    grid.add_hint(Hint(0, 0, 2, 'R'));
+    grid.add_hint(Hint(1, 2, 0, 'L'));
+    grid.add_hint(Hint(1, 7, 0, 'R'));
+    grid.add_hint(Hint(2, 5, 0, 'L'));
+    grid.add_hint(Hint(3, 3, 1, 'L'));
+    grid.add_hint(Hint(3, 6, 0, 'U'));
+    grid.add_hint(Hint(4, 2, 0, 'L'));
+    grid.add_hint(Hint(4, 6, 0, 'R'));
+    grid.add_hint(Hint(4, 9, 0, 'U'));
+    grid.add_hint(Hint(5, 4, 0, 'L'));
+    grid.add_hint(Hint(5, 7, 0, 'R'));
+    grid.add_hint(Hint(6, 2, 0, 'L'));
+    grid.add_hint(Hint(7, 5, 1, 'L'));
+    grid.add_hint(Hint(7, 7, 1, 'R'));
+    grid.add_hint(Hint(8, 2, 0, 'L'));
+    grid.add_hint(Hint(8, 7, 0, 'R'));
+    grid.add_hint(Hint(9, 5, 0, 'L'));
+}
+
+void UI::load_test_grid_2(){
+	grid.resize_grid(8, 12); 
+	
+    grid.add_hint(Hint(0, 3, 3, 'D'));
+    grid.add_hint(Hint(0, 11, 2, 'L'));
+    grid.add_hint(Hint(1, 7, 1, 'R'));
+    grid.add_hint(Hint(2, 5, 1, 'L'));
+    grid.add_hint(Hint(2, 10, 0, 'R'));
+    grid.add_hint(Hint(3, 5, 1, 'L'));
+    grid.add_hint(Hint(5, 1, 1, 'D'));
+    grid.add_hint(Hint(5, 6, 2, 'U'));
+    grid.add_hint(Hint(5, 8, 2, 'L'));
+    grid.add_hint(Hint(6, 8, 1, 'R'));
+    grid.add_hint(Hint(6, 9, 1, 'U'));
+    grid.add_hint(Hint(7, 11, 1, 'L'));
+}
+
+void UI::load_test_grid_3(){
+    grid.resize_grid(11, 16);
+
+    grid.add_hint(Hint(0, 11, 1, 'D'));
+    grid.add_hint(Hint(0, 15, 1, 'L'));
+    grid.add_hint(Hint(1, 1, 1, 'R'));
+    grid.add_hint(Hint(1, 5, 1, 'D'));
+    grid.add_hint(Hint(1, 13, 1, 'D'));
+    grid.add_hint(Hint(2, 1, 2, 'D'));
+    grid.add_hint(Hint(2, 3, 3, 'R'));
+    grid.add_hint(Hint(2, 5, 2, 'R'));
+    grid.add_hint(Hint(3, 2, 1, 'D'));
+    grid.add_hint(Hint(3, 4, 1, 'D'));
+    grid.add_hint(Hint(3, 7, 1, 'U'));
+    grid.add_hint(Hint(3, 8, 2, 'D'));
+    grid.add_hint(Hint(3, 9, 2, 'R'));
+    grid.add_hint(Hint(4, 7, 2, 'L'));
+    grid.add_hint(Hint(4, 8, 0, 'R'));
+    grid.add_hint(Hint(4, 9, 0, 'D'));
+    grid.add_hint(Hint(5, 7, 0, 'D'));
+    grid.add_hint(Hint(5, 12, 0, 'L'));
+    grid.add_hint(Hint(5, 13, 1, 'U'));
+    grid.add_hint(Hint(5, 14, 1, 'D'));
+    grid.add_hint(Hint(6, 1, 4, 'R'));
+    grid.add_hint(Hint(6, 7, 2, 'L'));
+    grid.add_hint(Hint(6, 11, 3, 'L'));
+    grid.add_hint(Hint(7, 7, 1, 'R'));
+    grid.add_hint(Hint(7, 11, 1, 'L'));
+    grid.add_hint(Hint(8, 3, 3, 'U'));
+    grid.add_hint(Hint(8, 11, 0, 'R'));
+    grid.add_hint(Hint(9, 5, 0, 'L'));
+    grid.add_hint(Hint(9, 12, 0, 'U'));
+    grid.add_hint(Hint(9, 13, 1, 'L'));
+    grid.add_hint(Hint(9, 14, 1, 'U'));
+    grid.add_hint(Hint(10, 5, 0, 'L'));
 }
 
 int UI::get_menu_choice(int min_choice, int max_choice){
@@ -57,30 +201,59 @@ pair<int, int> UI::enter_grid_dimensions(){
 }
 vector <Hint> UI::enter_hints(int grid_rows, int grid_cols){
 	vector<Hint> hints;
-	int n;
+	int hint_count;
+	
 	while(true){
 		cout << "Enter number of hints(0 or more): ";
-		if(!(cin >> n) || n < 0){
+		if(!(cin >> hint_count) || hint_count < 0){
 			cerr << "Invalid number of hints. Enter a positive number." << endl;
 			clear_input_buffer();
-			continue;
+		}else{
+			clear_input_buffer();
+			break;
 		}
-		clear_input_buffer();
 	}
-	int r, c, num;
-	char dir_input;
 	
-	for(int i = 0; i < n; i++){
+	for(int i = 0; i < hint_count; i++){
+		int r_hint, c_hint, hint_num;
+		char dir_char_input;
+		bool input_is_valid = false;
+		
 		cout << "Hint №" << (i+1) << ":" << endl;
 		
-		cout << "Enter (row coloum (number of cells) direction(U/D/L/R):\n" << endl;
-		if(!(cin >> r >> c >> num >> dir_input) || !is_valid(r , c) || num < 0){
-			cerr << "Invalid input. Try again." << endl;
+		while(!input_is_valid){		
+			if(!(cin >> r_hint >> c_hint >> hint_num >> dir_char_input)){
+				cerr << "Invalid input for hint №" << (i+1) << "." << endl;
+				clear_input_buffer();
+				continue;
+			}
+			
+			if(r_hint < 0 || r_hint >= grid_rows ||c_hint < 0 || c_hint >= grid_cols){
+				cerr << "Hint №" << (i+1) << " coordinates (" << r_hint << "," << c_hint 
+					<< ") are out of grid range" << endl;
+				clear_input_buffer();
+				continue;
+			}
+			
+			if(hint_num < 0){
+				cerr << "Hint №" << (i+1) << " must be positive." << endl;
+				clear_input_buffer();
+				continue;
+			}
+			
+			char dir_final = toupper(static_cast<unsigned char>(dir_char_input));
+			if(dir_final != 'U' && dir_final != 'D' && dir_final != 'L' && dir_final != 'R'){
+				cerr << "Hint №" << (i+1) << " must be 'U', 'D', 'L' or 'R'." << endl;
+				clear_input_buffer();
+				continue;
+			}
+			input_is_valid = true;
 			clear_input_buffer();
-			continue;
 		}
-		clear_input_buffer();
 	}
+	hints.emplace_back(r_hint, c_hint, hint_value, dir_final);
+    cout << "Added hint №" << (i + 1) << " (" << r_hint << "," << c_hint 
+                  << ", " << hint_value << ", " << dir_final << ")." << endl;
 	return hints;
 }
 
