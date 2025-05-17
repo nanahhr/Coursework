@@ -6,8 +6,11 @@ void UI::run_program(){
 	grid_loaded = false;
 	while(true){
 		if(!grid_loaded){
-			if(!main_menu) break;
-			else(!action_menu) grid_loaded = false;
+			if(!main_menu()){
+				break;
+			}else{
+				if(!action_menu()) grid_loaded = false;
+			}
 		}
 	}
 	cout << "End." << endl;
@@ -48,9 +51,11 @@ bool UI::action_menu(){
 	int choice = get_menu_choice(1,4);
 	switch(choice){
 		case 1:
-		
+			solve_manually();
+			break;
 		case 2:
-		
+			solve_grid_programmatically();
+			break;
 		case 3:
 			display_grid(grid);
 		case 4:
@@ -82,21 +87,21 @@ void UI::test_grid_menu(){
 	}
 	if (grid_chosen) {
         grid_loaded = true;
-        cout << "Тестову головоломку успішно завантажено." << endl;
+        cout << "Test grid is loaded." << endl;
         display_grid(grid);
     }
 }
 
 void UI::create_grid_from_console(){
 	pair<int, int> dimensions = enter_grid_dimensions();
-	grid.resize_grid(dimentions.first, dimentions.second);
+	grid.resize_grid(dimensions.first, dimensions.second);
 	
-	vector<Hint> hints = enter_hints(dimensions.first, dimentions.second);
+	vector<Hint> hints = enter_hints(dimensions.first, dimensions.second);
 	for(const Hint& h : hints){
 		grid.add_hint(h);
 	}
 	grid_loaded = true;
-	cout << "The grid was successfully created." << endl'
+	cout << "The grid was successfully created." << endl;
 	display_grid(grid);
 }
 
@@ -108,6 +113,46 @@ void UI::create_grid_from_file(){
 		display_grid(grid);
 	}
 }
+
+void UI::solve_manually(){
+	if(!grid_loaded){
+		cerr << "Grid is not loaded" << endl;
+		return;
+	}
+	
+	cout << "_Solve grid yourself_" << endl;
+	display_grid(grid);
+	
+	bool continue_solving = true;
+	
+	while(continue_solving){
+		cout << "\n_Options:_" << endl;
+		cout << "1. Show the solution." << endl;
+		cout << "2. Return to the action menu." << endl;
+		int choice = get_menu_choice(1,2);
+		
+		switch(choice){
+			case 1:{
+				cout << "Trying to show the solution.." << endl;
+			}
+			break;
+			case 2:
+				continue_solving = false;
+				break;
+		}
+	}
+}
+
+void UI::solve_grid_programmatically(){
+	if(!grid_loaded){
+		cerr << "Grid is not loaded" << endl;
+		return;
+	}
+
+    cout << "\n_Solve grid programmically_" << endl;
+    cout << "Starting solver...Wait a little bit..." << endl;
+}
+
 void UI::display_main_menu(){
 	cout << "\n_Menu_" << endl;
 	cout << "1. Enter data by user." << endl;
@@ -138,7 +183,7 @@ void UI::display_test_grid_menu(){
 }
 void UI::clear_input_buffer(){
 	cin.clear();
-	cin.ignore(numeric_limits<streamsize>::max, '\n');
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
 void UI::load_test_grid_1(){
@@ -234,13 +279,15 @@ int UI::get_menu_choice(int min_choice, int max_choice){
 }
 pair<int, int> UI::enter_grid_dimensions(){
 	int r, c;
-	cout << "Enter grid size (rows colums): ";
-	if(!(cin >> r >> c) || r < 1 || c < 1){
-		cerr << "Invalid input. Enter two positive numbers for rows and columns." << endl;
-		clear_input_buffer();
-	}else {
-		clear_input_buffer();
-		return {r, c};
+	while(true){
+		cout << "Enter grid size (rows colums): ";
+		if((cin >> r >> c) || r > 1 || c < 1){
+			cerr << "Invalid input. Enter two positive numbers for rows and columns." << endl;
+			clear_input_buffer();
+		}else {
+			clear_input_buffer();
+			return {r, c};
+		}
 	}
 }
 vector <Hint> UI::enter_hints(int grid_rows, int grid_cols){
@@ -261,6 +308,7 @@ vector <Hint> UI::enter_hints(int grid_rows, int grid_cols){
 	for(int i = 0; i < hint_count; i++){
 		int r_hint, c_hint, hint_num;
 		char dir_char_input;
+		char dir_final;
 		bool input_is_valid = false;
 		
 		cout << "Hint №" << (i+1) << ":" << endl;
@@ -285,7 +333,7 @@ vector <Hint> UI::enter_hints(int grid_rows, int grid_cols){
 				continue;
 			}
 			
-			char dir_final = toupper(static_cast<unsigned char>(dir_char_input));
+			dir_final = toupper(static_cast<unsigned char>(dir_char_input));
 			if(dir_final != 'U' && dir_final != 'D' && dir_final != 'L' && dir_final != 'R'){
 				cerr << "Hint №" << (i+1) << " must be 'U', 'D', 'L' or 'R'." << endl;
 				clear_input_buffer();
@@ -294,14 +342,14 @@ vector <Hint> UI::enter_hints(int grid_rows, int grid_cols){
 			input_is_valid = true;
 			clear_input_buffer();
 		}
+		hints.emplace_back(r_hint, c_hint, hint_num, dir_final);
+		cout << "Added hint №" << (i + 1) << " (" << r_hint << "," << c_hint 
+             << ", " << hint_num << ", " << dir_final << ")." << endl;
 	}
-	hints.emplace_back(r_hint, c_hint, hint_value, dir_final);
-    cout << "Added hint №" << (i + 1) << " (" << r_hint << "," << c_hint 
-                  << ", " << hint_value << ", " << dir_final << ")." << endl;
 	return hints;
 }
 
-void string UI::enter_filename(){
+string UI::enter_filename(){
 	string filename;
 	cout << "Enter filename: ";
 	getline(cin, filename);
@@ -318,21 +366,21 @@ void UI::display_grid(const Grid& grid){
 	}
 	
 	cout << "      ";
-	for (int i = 0; i < col; ++i) cout << setw(2) <<  i << "  ";
+	for (int i = 0; i < cols; ++i) cout << setw(2) <<  i << "  ";
 	cout << "\n     ";
-	for (int i = 0; i < col; ++i) cout << "----";
+	for (int i = 0; i < cols; ++i) cout << "----";
 	cout << endl;
 
 	for (int i = 0; i < rows; i++) {
 		cout << setw(3) <<  i << " " << "| ";
-		CellState cell = grid.get_cell(i, j);
 		for (int j = 0; j < cols; j++) {
+			CellState cell = grid.get_cell(i, j);
 			switch (cell) {
-                case CellState::EMPTY:  std::cout << " . "; break;
-                case CellState::FILLED: std::cout << " # "; break;
-                case CellState::LINE:   std::cout << " + "; break;
+                case CellState::EMPTY: cout << " . "; break;
+                case CellState::FILLED: cout << " # "; break;
+                case CellState::LINE: cout << " + "; break;
                 case CellState::HINT: {
-					Hint* h_ptr = grid.get_hint_at(i, j);
+					const Hint* h_ptr = grid.get_hint_at(i, j);
 						if (h_ptr) {
 							cout << setw(2) << h_ptr->num;
 							switch (h_ptr -> direction) {
@@ -354,7 +402,7 @@ void UI::display_grid(const Grid& grid){
 		cout << "|" << endl;
 	}
 	cout << "     ";
-	for (int i = 0; i < col; i++) cout << "----";
+	for (int i = 0; i < cols; i++) cout << "----";
 	cout << endl;
 	
 	if(grid.get_is_solved()){

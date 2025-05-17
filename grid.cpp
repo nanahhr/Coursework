@@ -2,7 +2,7 @@
 
 //Конструктор з параметрами для підказок.
 Hint::Hint(int r, int c, int num, char dir) : 
-	row(r), col(c), num(n), direction(dir) {}
+	row(r), col(c), num(num), direction(dir) {}
 
 //Контруктор без параметрів для сітки.
 Grid::Grid() : rows(0), cols(0), is_solved(false) {}
@@ -10,24 +10,23 @@ Grid::Grid() : rows(0), cols(0), is_solved(false) {}
 //Конструктор з параметрами(рядки і стовпці).
 Grid::Grid(int r, int c) 
 	: rows(r),
-	cols(c),
-	is_solved(false),
+	cols(c), is_solved(false),
 	cells(r, vector<CellState>(c, CellState::EMPTY)) {}
 	   
 //Повертає кількість рядків сітки.  
-int Grid::get_rows(){return rows;}
+int Grid::get_rows() const {return rows;}
 	
 //Повертає кількість стовпців сітки.
-int Grid::get_cols(){return cols;}
+int Grid::get_cols() const {return cols;}
 	
 //Повертає клітинки.
-CellState Grid::get_cell(int row, int col){return cells[row][col];}
+CellState Grid::get_cell(int row, int col) const {return cells[row][col];}
 	
 //Повертає вектор з підказками.
-vector<Hint>& Grid::get_hints(){return hints;}
+vector<Hint> Grid::get_hints() const {return hints;}
 
 //Якщо є, знаходить підказку за координатами.
-Hint* Grid::get_hint_at(int row, int col){
+const Hint* Grid::get_hint_at(int row, int col) const {
 	if(cells[row][col] == CellState::HINT){
 		for(auto& h : hints){
 			if(h.row == row && h.col == col){
@@ -39,7 +38,7 @@ Hint* Grid::get_hint_at(int row, int col){
 }
 
 //Повертає стан вирішення сітки.
-bool Grid::get_is_solved(){return is_solved;}
+bool Grid::get_is_solved() const {return is_solved;}
 	
 //Встановлює значення клітинки сітки.	
 void Grid::set_cell(int row, int col, CellState state){cells[row][col] = state;}
@@ -78,7 +77,7 @@ bool Grid::is_valid(int row, int col){
 	
 //Функція для отримання данних з файлу.
 bool Grid::load_from_file(const string& filename){
-	ifstream file(file_name);
+	ifstream file(filename);
 		
 	if(!file){
 		cerr << "Cannot open file <" << filename << ">." << endl;
@@ -86,8 +85,8 @@ bool Grid::load_from_file(const string& filename){
 	}
 	int file_nr, file_nc;
 	
-	if(!(file >> file_nr >> file_nc) || file_rows <= 0 || file_cols <= 0){
-		cerr << "Failed to read grid size from <" << file_name << ">." << endl;
+	if(!(file >> file_nr >> file_nc) || file_nr <= 0 || file_nc <= 0){
+		cerr << "Failed to read grid size from <" << filename << ">." << endl;
 		file.close();
 		return false;
 	}
@@ -97,7 +96,7 @@ bool Grid::load_from_file(const string& filename){
 	int file_hint_count;
 	
 	if(!(file >> file_hint_count) || file_hint_count < 0){
-		cerr << "Failed to read number of hints from <" << file_name << ">." << end;
+		cerr << "Failed to read number of hints from <" << filename << ">." << endl;
 		file.close();
 		return false;
 	}
@@ -107,33 +106,33 @@ bool Grid::load_from_file(const string& filename){
 		char dir_char_input;
 		
 		if(!(file >> r_hint >> c_hint >> hint_num >> dir_char_input)){
-			cerr << "Failed to read data for hint №" << (i+1) << ".' << endl;
+			cerr << "Failed to read data for hint №" << (i+1) << "." << endl;
 			file.close();
 			return false;
 		}
 		
 		if(r_hint < 0 || r_hint >= this->rows ||c_hint < 0 || c_hint >= this-> cols){
 			cerr << "Hint №" << (i+1) << " coordinates (" << r_hint << "," << c_hint 
-				<< ") are out of grid range in file <" << file_name << ">." << endl;
+				<< ") are out of grid range in file <" << filename << ">." << endl;
 		    file.close();
 			return false;
 		}
 		
 		if(hint_num < 0){
-			cerr << "Hint №" << (i+1) << " has negative value in file <" << file_name << ">." << endl;
+			cerr << "Hint №" << (i+1) << " has negative value in file <" << filename << ">." << endl;
 			file.close();
 			return false;
 		}
 		
 		char dir_final = toupper(static_cast<unsigned char>(dir_char_input));
 		if(dir_final != 'U' && dir_final != 'D' && dir_final != 'L' && dir_final != 'R'){
-			cerr << "Hint №" << (i+1) << " has invalid direction(not U/D/L/R) in file <" << file_name << ">." << endl;
+			cerr << "Hint №" << (i+1) << " has invalid direction(not U/D/L/R) in file <" << filename << ">." << endl;
 			file.close();
 			return false;
 		}
 		
 		if(this->cells[r_hint][c_hint] == CellState::HINT){
-			cerr << "Hint №" << (i+1) << " is a dublicate. Skipping this hint from file <" << file_name << ">." << endl;
+			cerr << "Hint №" << (i+1) << " is a dublicate. Skipping this hint from file <" << filename << ">." << endl;
 			continue;
 		}
 		
