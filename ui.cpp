@@ -6,8 +6,8 @@ void UI::run_program(){
 	grid_loaded = false;
 	while(true){
 		if(!grid_loaded){
-			if(!) break;
-			else(!) grid_loaded = false;
+			if(!main_menu) break;
+			else(!action_menu) grid_loaded = false;
 		}
 	}
 	cout << "End." << endl;
@@ -17,8 +17,13 @@ bool UI::main_menu(){
 	int choice = get_menu_choice(1,3);
 	switch(choice){
 		case 1:
+			input_source_menu();
+			break;
 		case 2:
+			test_grid_menu();
+			break;
 		case 3:
+			return false;
 	}
 	return true;
 }
@@ -28,8 +33,13 @@ void UI::input_source_menu(){
 	int choice = get_menu_choice(1,3);
 	switch(choice){
 		case 1:
+			create_grid_from_console();
+			break;
 		case 2:
+			create_grid_from_file();
+			break;
 		case 3:
+			return;
 	}
 }
 
@@ -38,9 +48,13 @@ bool UI::action_menu(){
 	int choice = get_menu_choice(1,4);
 	switch(choice){
 		case 1:
+		
 		case 2:
+		
 		case 3:
+			display_grid(grid);
 		case 4:
+			return false;
 	}
 	return true;
 }
@@ -52,9 +66,19 @@ void UI::test_grid_menu(){
 	
 	switch(choice){
 		case 1:
+			load_test_grid_1();
+			grid_chosen = true;
+			break;
 		case 2:
+			load_test_grid_2();
+			grid_chosen = true;
+			break;
 		case 3:
+			load_test_grid_3();
+			grid_chosen = true;
+			break;
 		case 4:
+			return;
 	}
 	if (grid_chosen) {
         grid_loaded = true;
@@ -63,7 +87,27 @@ void UI::test_grid_menu(){
     }
 }
 
+void UI::create_grid_from_console(){
+	pair<int, int> dimensions = enter_grid_dimensions();
+	grid.resize_grid(dimentions.first, dimentions.second);
+	
+	vector<Hint> hints = enter_hints(dimensions.first, dimentions.second);
+	for(const Hint& h : hints){
+		grid.add_hint(h);
+	}
+	grid_loaded = true;
+	cout << "The grid was successfully created." << endl'
+	display_grid(grid);
+}
 
+void UI::create_grid_from_file(){
+	string filename = enter_filename();
+	if(grid.load_from_file(filename)){
+		cout << "The grid was successfully created from file <" << filename << ">." << endl;
+		grid_loaded = true;
+		display_grid(grid);
+	}
+}
 void UI::display_main_menu(){
 	cout << "\n_Menu_" << endl;
 	cout << "1. Enter data by user." << endl;
