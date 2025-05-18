@@ -53,3 +53,37 @@ bool Solver::can_place_from_hints(const Grid& grid, const Hint& hint) const{
     }
     return true;
 }
+
+bool Solver::place_from_hints(Grid& grid, const Hint& hint){
+    if(!can_place_from_hints(grid, hint)) return false;
+
+    int dr = 0, dc = 0;
+    if (hint.direction == 'R') dc = 1;
+    else if (hint.direction == 'L') dc = -1;
+    else if (hint.direction == 'U') dr = -1;
+    else if (hint.direction == 'D') dr = 1;
+
+    int r = hint.row;
+    int c = hint.col;
+
+    for (int i = 0; i < hint.num; ++i) {
+        r += dr;
+        c += dc;
+
+        if (has_orthogonally_adjacent_filled(grid, r, c)) {
+            cerr << " Adjacency conflict attempting to place FILLED at (" 
+                      << r << "," << c << ") for hint (" 
+                      << hint.row << "," << hint.col << ")." << endl;
+            return false; 
+        }
+		
+		if(grid.get_cell(r, c) != CellState::EMPTY){
+			cerr << "Attempting to place filled at cell (" 
+					<< r << "," << c << ") that is not empty for hint (" 
+                      << hint.row << "," << hint.col << ")." << endl;
+
+		}
+        grid.set_cell(r, c, CellState::FILLED);
+    }
+    return true;
+}
