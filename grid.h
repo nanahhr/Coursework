@@ -5,9 +5,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <cctype>
 #include <cstring>
-
 using namespace std;
 
 
@@ -42,7 +40,7 @@ public:
 	void add_hint(const Hint& hint);
 	void set_is_solved(bool solved);
 
-	bool is_valid(int row, int col);
+	bool is_valid(int row, int col) const;
 	bool load_from_file(const string& file_name);
 };	
 #endif

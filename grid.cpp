@@ -1,31 +1,45 @@
+/* ----------------------------------------------------------------<Header>-
+ Name: grid.cpp
+ Title: Implementation of Grid and Hint for puzzle grid management.
+ Group: TV-42
+ Student: Hryhorenko A.A.
+ Written: 2025-05-18
+ Revised: 
+ Description: This file implements the Grid class which manages a
+              grid structure with cells and hints, including loading
+              from file, resizing, and cell state management.
+              The Hint structure represents hints associated with cells
+              in the grid, including position, number, and direction.
+ ------------------------------------------------------------------</Header>-*/
+ 
 #include "grid.h"
 
-//Конструктор з параметрами для підказок.
+/*Конструктор з параметрами для підказок.*/
 Hint::Hint(int r, int c, int num, char dir) : 
 	row(r), col(c), num(num), direction(dir) {}
 
-//Контруктор без параметрів для сітки.
+/*Контруктор без параметрів для сітки.*/
 Grid::Grid() : rows(0), cols(0), is_solved(false) {}
 
-//Конструктор з параметрами(рядки і стовпці).
+/*Конструктор з параметрами(рядки і стовпці) для сітки.*/
 Grid::Grid(int r, int c) 
 	: rows(r),
 	cols(c), is_solved(false),
 	cells(r, vector<CellState>(c, CellState::EMPTY)) {}
 	   
-//Повертає кількість рядків сітки.  
+/*Повертає кількість рядків сітки.*/
 int Grid::get_rows() const {return rows;}
 	
-//Повертає кількість стовпців сітки.
+/*Повертає кількість стовпців сітки.*/
 int Grid::get_cols() const {return cols;}
 	
-//Повертає клітинки.
+/*Повертає клітинки.*/
 CellState Grid::get_cell(int row, int col) const {return cells[row][col];}
 	
-//Повертає вектор з підказками.
+/*Повертає вектор з підказками.*/
 vector<Hint> Grid::get_hints() const {return hints;}
 
-//Якщо є, знаходить підказку за координатами.
+/*Якщо є, знаходить підказку за координатами.*/
 const Hint* Grid::get_hint_at(int row, int col) const {
 	if(cells[row][col] == CellState::HINT){
 		for(auto& h : hints){
@@ -37,13 +51,13 @@ const Hint* Grid::get_hint_at(int row, int col) const {
 	return nullptr;
 }
 
-//Повертає стан вирішення сітки.
+/*Повертає стан вирішення сітки.*/
 bool Grid::get_is_solved() const {return is_solved;}
 	
-//Встановлює значення клітинки сітки.	
+/*Встановлює значення клітинки сітки.*/	
 void Grid::set_cell(int row, int col, CellState state){cells[row][col] = state;}
 
-//Змінює розміри сітки та очищує її вміст.
+/*Змінює розміри сітки та очищує її вміст.*/
 void Grid::resize_grid(int nr, int nc){
 	if(nr <= 0 || nc <= 0){
 		cerr << "Invalid input. Rows and columns must be positive. ";
@@ -62,24 +76,28 @@ void Grid::resize_grid(int nr, int nc){
 	cout << "Grid resized to (" << this->rows << "," << this->cols << ")." << endl; 
 }	
 
-//Додає підказку для сітки.
+/*Додає підказку для сітки.*/
 void Grid::add_hint(const Hint& hint){
 	hints.push_back(hint);
 	cells[hint.row][hint.col] = CellState::HINT;
 }
-//Встановлює стан вирішення сітки.
+/*Встановлює стан вирішення сітки.*/
 void Grid::set_is_solved(bool solved){is_solved = solved;}
 	
-//Перевіряє, чи координати клітинки є в межах сітки.
-bool Grid::is_valid(int row, int col){
+/*Перевіряє, чи координати клітинки є в межах сітки.*/
+bool Grid::is_valid(int row, int col) const{
 	return row >= 0 && row < rows && col >= 0 && col < cols;
 }
 	
-//Функція для отримання данних з файлу.
+/*
+	Завантажує сітку з файлу з перевіркою коректності даних:
+	розмірів, кількості та параметрів підказок.
+	Повертає true при успіху, false — при помилках.
+*/
 bool Grid::load_from_file(const string& filename){
 	ifstream file(filename);
 		
-	if(!file){
+	if(!file.is_open()){
 		cerr << "Cannot open file <" << filename << ">." << endl;
 		return false;
 	}

@@ -2,7 +2,7 @@
 #define UI_H
 
 #include "grid.h"
-
+#include "solver.h"
 #include <iostream>
 #include <utility>
 #include <vector> 
@@ -17,7 +17,7 @@ public:
 	
 private:	
 	Grid grid;
-	//Solver solver;
+	Solver solver;
 	bool grid_loaded;
 	
 	void display_main_menu();
@@ -30,7 +30,7 @@ private:
 	pair<int, int> enter_grid_dimensions();
 	vector <Hint> enter_hints(int grid_rows, int grid_cols);
 	string enter_filename();
-	
+
 	bool main_menu();
 	void input_source_menu();
 	bool action_menu();
