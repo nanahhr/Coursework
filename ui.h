@@ -3,12 +3,16 @@
 
 #include "grid.h"
 #include "solver.h"
+#include "display.h"
+#include "input.h"
+
 #include <iostream>
-#include <utility>
 #include <vector> 
 #include <string>
-#include <limits>
-#include <iomanip>
+
+#define COLOR_RESET   "\033[0m"
+#define COLOR_GREEN   "\033[1;32m"
+#define COLOR_RED     "\033[1;31m"
 
 class UI{
 public:
@@ -20,17 +24,9 @@ private:
 	Solver solver;
 	bool grid_loaded;
 	
-	void display_main_menu();
-	void display_input_source_menu();
-	void display_action_menu();
-	void display_test_grid_menu();
-	void clear_input_buffer();
+    Display display;
+    Input input;
 	
-	int get_menu_choice(int min_choice, int max_choice);
-	pair<int, int> enter_grid_dimensions();
-	vector <Hint> enter_hints(int grid_rows, int grid_cols);
-	string enter_filename();
-
 	bool main_menu();
 	void input_source_menu();
 	bool action_menu();
@@ -45,8 +41,7 @@ private:
 	void load_test_grid_1();
 	void load_test_grid_2();
 	void load_test_grid_3();
-	
-	void display_grid(const Grid& grid);
+
 };
 
 #endif

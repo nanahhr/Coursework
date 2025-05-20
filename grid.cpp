@@ -1,12 +1,10 @@
 /* ----------------------------------------------------------------<Header>-
  Name: grid.cpp
- Title: Implementation of Grid and Hint for puzzle grid management.
  Group: TV-42
  Student: Hryhorenko A.A.
  Written: 2025-05-18
  Revised: 
- Description: This file implements the Grid class which manages a
-              grid structure with cells and hints, including loading
+ Description: Manages a grid structure with cells and hints, including loading
               from file, resizing, and cell state management.
               The Hint structure represents hints associated with cells
               in the grid, including position, number, and direction.
