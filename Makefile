@@ -11,7 +11,7 @@ TARGET = task13
 TARGET_DEL = $(TARGET).exe
 
 # Source files
-SRCS = task13.cpp grid.cpp ui.cpp solver.cpp
+SRCS = task13.cpp grid.cpp ui.cpp solver.cpp display.cpp input.cpp
 
 # Object files (replace .cpp with .o)
 OBJS = $(SRCS:.cpp=.o)
