@@ -29,7 +29,7 @@ bool Solver::has_orthogonally_adjacent_filled(const Grid& grid, int r, int c) co
         int nr = r + dr_adj[i];
         int nc = c + dc_adj[i];
         if (grid.is_valid(nr, nc) && grid.get_cell(nr, nc) == CellState::FILLED) {
-            return true;
+			return false;
         }
     }
     return false;
@@ -102,8 +102,13 @@ bool Solver::place_from_hints(Grid& grid, const Hint& hint){
         r += dr;
         c += dc;
 
+		if (!grid.is_valid(r, c)) {
+			cerr << "Out of bounds at (" << r << "," << c << ") for hint (" 
+				 << hint.row << "," << hint.col << ")." << endl;
+			return false;
+		}
         if (has_orthogonally_adjacent_filled(grid, r, c)) {
-            cerr << " Adjacency conflict attempting to place FILLED at (" 
+            cerr << "Adjacency conflict attempting to place FILLED at (" 
                       << r << "," << c << ") for hint (" 
                       << hint.row << "," << hint.col << ")." << endl;
             return false; 
@@ -120,11 +125,48 @@ bool Solver::place_from_hints(Grid& grid, const Hint& hint){
     return true;
 }
 
+/*Видаляє розміщені заповнені клітинки, створені за підказкою.*/
+void Solver::remove_from_hint(Grid& grid, const Hint& hint) {
+    int dr = 0, dc = 0;
+    if (hint.direction == 'R') dc = 1;
+    else if (hint.direction == 'L') dc = -1;
+    else if (hint.direction == 'U') dr = -1;
+    else if (hint.direction == 'D') dr = 1;
+
+    int r = hint.row, c = hint.col;
+    for (int i = 0; i < hint.num; i++) {
+        r += dr;
+        c += dc;
+        grid.set_cell(r, c, CellState::EMPTY);
+    }
+}
+
 /*
-	Перетворює клітинки зі станом EMPTY в стан LINE починаючи з (r, c).
-	Для реалізації використовує стек та обхід у глибину.
-	Перевіряє, щоб не виходити за межі поля і не заходити в уже відвідані 
-	або не пусті клітинки.
+	Рекурсивно намагається розташувати підказки по черзі на сітці.
+	Якщо всі підказки розмістили без конфліктів, повертає true,
+	інакше повертає false і відкатує зміни.
+*/
+bool Solver::backtrack(Grid& grid, int hint_index) {
+    if (hint_index >= (int)grid.get_hints().size()) {
+        return true;
+    }
+
+    const Hint& hint = grid.get_hints()[hint_index];
+
+    if (!can_place_from_hints(grid, hint)) return false;
+
+    place_from_hints(grid, hint);
+
+    if (backtrack(grid, hint_index + 1)) {
+        return true;
+    }
+
+    remove_from_hint(grid, hint);
+    return false;
+}
+/*
+	Заповнює суміжні порожні клітинки лінією,
+	починаючи з заданої позиції.
 */
 void Solver::fill_line(Grid& grid, int r, int c, vector<vector<bool>>& visited) {
     if (!grid.is_valid(r, c)) return;
@@ -157,32 +199,35 @@ void Solver::fill_line(Grid& grid, int r, int c, vector<vector<bool>>& visited) 
 }
 
 /*
-	Намагається заповнити сітку на основі підказок.
-	Очищає всі клітинки, окрім підказок.
-	Розставляє лінію за підказками та перевіряє, чи можна утворити суцільну.
-	Якщо залишились порожні клітинки, повертає solved = false.
+	Головна функція розв'язання головоломки:
+	очищає всі клітинки, крім підказок, виконує backtracking,
+	перевіряє чи утворена одна суцільна лінія без пропусків, 
+	позначає розв'язок як успішний або ні.
 */
 void Solver::solve(Grid& grid, bool& solved) {
-    int rows = grid.get_rows(), cols = grid.get_cols();
-    
-    for (int r = 0; r < rows; ++r)
-        for (int c = 0; c < cols; ++c)
-            if (grid.get_cell(r, c) != CellState::HINT)
+    int rows = grid.get_rows();
+    int cols = grid.get_cols();
+
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            if (grid.get_cell(r, c) != CellState::HINT) {
                 grid.set_cell(r, c, CellState::EMPTY);
+            }
+        }
+    }
 
     grid.set_is_solved(false);
-	
-    for (const Hint& h : grid.get_hints())
-        if (!can_place_from_hints(grid, h) || !place_from_hints(grid, h)) {
-            solved = false;
-            return;
-        }
+
+    if (!backtrack(grid, 0)) {
+        solved = false;
+        return;
+    }
 
     vector<vector<bool>> visited(rows, vector<bool>(cols, false));
     bool started = false;
 
-    for (int r = 0; r < rows; ++r)
-        for (int c = 0; c < cols; ++c)
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
             if (grid.get_cell(r, c) == CellState::EMPTY && !visited[r][c]) {
                 if (started) {
                     solved = false;
@@ -191,13 +236,16 @@ void Solver::solve(Grid& grid, bool& solved) {
                 fill_line(grid, r, c, visited);
                 started = true;
             }
-
-    for (int r = 0; r < rows; ++r)
-        for (int c = 0; c < cols; ++c)
+        }
+    }
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
             if (grid.get_cell(r, c) == CellState::EMPTY) {
                 solved = false;
                 return;
             }
+        }
+    }
 
     grid.set_is_solved(true);
     solved = true;
